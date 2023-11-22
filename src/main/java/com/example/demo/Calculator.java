@@ -6,53 +6,37 @@ import java.io.IOException;
 
 public class Calculator {
 
-    public Integer calcSum(String filepath) throws IOException {
-        /*
-        filePath 를 읽어서 BufferReader 를 만드는 템플릿 로직과 line 을 읽어서 더하는 콜백로직을 분리
-         */
-        BufferedReaderCallback sumCallback = new BufferedReaderCallback() {
-
-            /**
-             * br 을 이용해 line 을 읽어서 더하여 결과를 반환하는 메서드
-             */
-            public Integer doSomethingWithReader(BufferedReader br) throws IOException {
-                Integer sum = 0;
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    sum += Integer.valueOf(line);
-                }
-                return sum;
+    public Integer calcSum(String filePath) throws IOException {
+        LineCallback sumCallback = new LineCallback() {
+            public Integer doSomethingWithLine(String line, Integer value) {
+                return value + Integer.valueOf(line);
             }
-
         };
-        return fileReadTemplate(filepath, sumCallback);
+        return lineReadTemplate(filePath, sumCallback, 0);
     }
 
     public Integer calcMultiply(String filePath) throws IOException {
-        BufferedReaderCallback multiplyCallback = new BufferedReaderCallback() {
-            public Integer doSomethingWithReader(BufferedReader br) throws IOException {
-                Integer multiply = 1;
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    multiply *= Integer.valueOf(line);
-                }
-                return multiply;
+        LineCallback sumCallback = new LineCallback() {
+            public Integer doSomethingWithLine(String line, Integer value) {
+                return value * Integer.valueOf(line);
             }
         };
-        return fileReadTemplate(filePath, multiplyCallback);
+        return lineReadTemplate(filePath, sumCallback, 1);
     }
 
     /**
-     * filePath 를 받아서 BufferReader 를 만들고, callback 객체를 받아서 뭔가 처리하게 하는 메소드
+     * filePath 를 받아서 BufferReader 를 만들고, callback 객체, 초기값을 받아서 뭔가 처리하게 하는 메소드
      */
-    public Integer fileReadTemplate(String filePath, BufferedReaderCallback callback) throws IOException {
+    public Integer lineReadTemplate(String filePath, LineCallback callback, int initVal) throws IOException {
         BufferedReader br = null;
         try {
-            // filepath 를 받아서 BufferReader 를 만든다
             br = new BufferedReader(new FileReader(filePath));
-            // callback 객체의 doSomethingWithReader 를 수행해서 결과를 받는다
-            int ret = callback.doSomethingWithReader(br);
-            return ret;
+            Integer res = initVal;
+            String line = null;
+            while((line = br.readLine()) != null) {
+                res = callback.doSomethingWithLine(line, res);
+            }
+            return res;
         } catch (IOException e) {
             System.out.println(e.getMessage());
             throw e;
