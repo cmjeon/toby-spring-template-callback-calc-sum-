@@ -29,4 +29,10 @@ class CalculatorTest {
         int multiply = calculator.calcMultiply(this.numFilepath);
         assertThat(multiply).isEqualTo(24);
     }
+
+    @Test
+    public void concatenateOfNumbers() throws IOException {
+        String concatenate = calculator.concatenate(this.numFilepath);
+        assertThat(concatenate).isEqualTo("1234");
+    }
 }
